@@ -6,8 +6,9 @@ import requests
 
 from flask import Flask, request, redirect
 from flask_caching import Cache
-
+ 
 app = Flask(__name__)
+
 configparser.ConfigParser()
 
 cache = Cache(app, config={
@@ -44,3 +45,6 @@ def doRedirect(url_id: string):
     response = requests.get("https://geolocation-db.com/json/" + request.remote_addr + "&position=true").json()
     return request.remote_addr
     return redirect(cache.get(url_id), code=302)
+
+if __name__ == "__main__":
+        app.run()
