@@ -1,21 +1,24 @@
 import configparser
 from random import choice
 import string
-import config
+import os
 import requests
 
 from flask import Flask, request, redirect, jsonify, render_template
 from flask_caching import Cache
  
+from dotenv import load_dotenv
+load_dotenv()
+
 app = Flask(__name__)
 
 configparser.ConfigParser()
 
 cache = Cache(app, config={
     'CACHE_TYPE': 'RedisCache',
-    'CACHE_DEFAULT_TIMEOUT': config.TTL,
+    'CACHE_DEFAULT_TIMEOUT': os.environ.get('TTL', 60 * 60 * 24 * 7),
     'CACHE_KEY_PREFIX': 'ust_',
-    'CACHE_REDIS_URL': config.REDIS_URL,
+    'CACHE_REDIS_URL': os.environ.get('REDIS_URL')
 })
 
 def generate_short_id(num_of_chars: int):
