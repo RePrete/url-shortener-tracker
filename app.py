@@ -25,6 +25,10 @@ def generate_short_id(num_of_chars: int):
     """Function to generate short_id of specified number of characters"""
     return ''.join(choice(string.ascii_letters+string.digits) for _ in range(num_of_chars))
 
+@app.route("/test")
+def test():
+    return render_template('preview.html')
+
 @app.route("/short-url", methods=['POST'])
 def create():
     json = request.get_json()
@@ -63,10 +67,6 @@ def store_location(url_id, location):
     else:
         locations = [location]
     cache.set('location_' + url_id, locations)
-
-@app.route("/test")
-def test():
-    return render_template('preview.html')
 
 if __name__ == "__main__":
         app.run()
