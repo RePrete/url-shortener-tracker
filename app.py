@@ -4,7 +4,7 @@ import string
 import config
 import requests
 
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, jsonify, render_template
 from flask_caching import Cache
  
 app = Flask(__name__)
@@ -39,12 +39,31 @@ def search(url_id: string):
         "url": cache.get(url_id)
     }
 
-
 @app.route("/<url_id>")
 def doRedirect(url_id: string):
-    response = requests.get("https://geolocation-db.com/json/" + request.remote_addr + "&position=true").json()
-    return request.remote_addr
+    ip = request.headers.get('X-Forwarded-For')
+    location = requests.get("https://geolocation-db.com/json/" + ip + "&position=true").json()
+    store_location(url_id, location)
     return redirect(cache.get(url_id), code=302)
+
+@app.route("/<url_id>/locations")
+def getLocations(url_id: string):
+    locations = cache.get('location_' + url_id)
+    return jsonify(locations)
+
+
+def store_location(url_id, location):
+    existing_locations = cache.get('location_' + url_id)
+    if existing_locations:
+        existing_locations.append(location)
+        locations = existing_locations
+    else:
+        locations = [location]
+    cache.set('location_' + url_id, locations)
+
+@app.route("/test")
+def test():
+    return render_template('preview.html')
 
 if __name__ == "__main__":
         app.run()
